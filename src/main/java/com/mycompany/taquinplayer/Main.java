@@ -24,10 +24,9 @@ public class Main {
         try {
             System.out.println("Ingresa el nombre del archivo a para jugar");
             Scanner sc = new Scanner(System.in);
-            Player p1 = Player.readFile( /*sc.nextLine()*/ "4.txt" );
+            Player p1 = Player.readFile( /*sc.nextLine()*/ "3.txt" );
+            p1.shuffle();
             System.out.println( p1.toString() );
-            //p.solve();
-            
             ServerIntegration integration = new ServerIntegration( p1 );
             integration.challenge();
             integration.getTaquin();

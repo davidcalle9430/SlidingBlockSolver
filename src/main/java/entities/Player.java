@@ -106,7 +106,15 @@ public class Player implements Serializable {
         }
     }
    
-    
+    public List<Integer> shuffle(  ){
+        List<Integer> moves = new ArrayList<>();
+        for (int i = 0; i < taquin.length * taquin.length ; i++) {
+            int move = getValidMoves().get( 0 );
+            moves.add( move );
+            this.move( move , true);
+        }
+        return moves;
+    }
     public String solve() throws Exception{
         PriorityQueue<Movement> queue = new PriorityQueue<>();
         Movement previous = null;
