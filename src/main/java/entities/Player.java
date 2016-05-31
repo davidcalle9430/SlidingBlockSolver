@@ -22,7 +22,6 @@ import org.apache.commons.lang.SerializationUtils;
  * @author david
  */
 public class Player implements Serializable {
-    
     private static long seed = System.nanoTime();
     
     
@@ -103,26 +102,21 @@ public class Player implements Serializable {
     }
     
     public String solve() throws Exception{
-        
         PriorityQueue<Movement> queue = new PriorityQueue<>();
-        HashMap<Integer, Movement> example = new HashMap<>();
         Movement previous = null;
         Movement best = null;
         ArrayList<Movement> estados = new ArrayList<>();
         int totalMovimientos = 0;
-        String camino = "";
+        String camino = null;
         while( best == null || best.getExactTotalDistance() > 0 ){
             
             if( best != null){
                 previous = (Movement) SerializationUtils.clone( best );
             }
-            
-            
             List<Integer> moves = getValidMoves();
             totalMovimientos++;
             for (Integer movement : moves) {
                 Player player_copy = (Player) SerializationUtils.clone( this );
-                player_copy.cloneMatrix();
                 player_copy.move( movement , true);
                 if( best != null ){
                     camino = best.getPath() + movement;
@@ -148,7 +142,7 @@ public class Player implements Serializable {
             this.taquin = best.getTaquin();
             this.currentI = best.getI();
             this.currentJ = best.getJ();
-            System.out.println( "Selecciona a una distance de  " + best.getExactTotalDistance() +"");
+            System.out.println( "Selecciona a una distance de  " + best.getExactTotalDistance() +"--"+ best.getCorrectlyPlaced());
             
             //System.in.read();
         }

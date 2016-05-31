@@ -5,6 +5,7 @@
  */
 package entities;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +37,11 @@ public final class Movement implements Comparable<Movement>, Serializable {
     private int moveCount;
     private int correctlyPlaced;
     private int exactTotalDistance;
-    private int numOrdered;
+    public int aTenerEnCuenta = 1;
+    public int h;
+    
 
-    public Movement(Integer[][] Taquin, String path, Movement previous, int i, int j, int movement, int moveCount, int numOrdered) {
+    public Movement(Integer[][] Taquin, String path, Movement previous, int i, int j, int movement, int moveCount) throws Exception{
         this.taquin = new Integer[Taquin.length][Taquin.length];
         for (int k = 0; k < taquin.length; k++) {
             this.taquin[ k ] = Taquin[ k ].clone();
@@ -50,6 +53,8 @@ public final class Movement implements Comparable<Movement>, Serializable {
         this.movement = movement;
         this.moveCount = moveCount;
         this.exactTotalDistance = countExactTotalDistance();
+        this.correctlyPlaced = countCorrectlyPlaced();
+        h = correctlyPlaced > exactTotalDistance ? correctlyPlaced : exactTotalDistance;
     }
 
     
@@ -86,7 +91,7 @@ public final class Movement implements Comparable<Movement>, Serializable {
             int currentRow = 0;
             int error = 0,  mRow;
             Integer value = 0;
-            
+            /*
             for (int i = 0; i < this.taquin.length ; i++) {
                 error = 0;
                 for (int j = 0; j < taquin.length; j++) {
@@ -103,6 +108,7 @@ public final class Movement implements Comparable<Movement>, Serializable {
                 }
                 currentRow++;
             }
+*/
             return (int) distance;
         }
     }
@@ -205,12 +211,12 @@ public final class Movement implements Comparable<Movement>, Serializable {
     public int compareTo(Movement o) {
         //System.out.println("Llama al compare");
         if( o == null) return 1;
-        Integer first = (int) (Math.pow( exactTotalDistance , 2)  + moveCount);
-        Integer second = (int)(Math.pow( o.getExactTotalDistance() , 2)  + o.getMoveCount() );
+        Integer first = (int) (Math.pow( exactTotalDistance + correctlyPlaced , 1.5)  + moveCount);
+        Integer second = (int)(Math.pow( o.getExactTotalDistance() + o.getCorrectlyPlaced() , 1.5)  + o.getMoveCount() );
         int manhattan = first.compareTo(second);
         //Collections.shuffle( VALUES );
-        if( manhattan == 0 ){ Collections.shuffle( VALUES ); }
-        return manhattan != 0 ? manhattan : VALUES.get(0) ; //
+        
+        return manhattan != 0 ? manhattan : new Integer( correctlyPlaced ).compareTo( o.getCorrectlyPlaced( )); //
     }
 
     @Override
@@ -233,6 +239,36 @@ public final class Movement implements Comparable<Movement>, Serializable {
         int hash = 5;
         hash = 67 * hash + Arrays.deepHashCode(this.taquin);
         return hash;
+    }
+
+    private int countCorrectlyPlaced() throws IOException {
+        if( this.previous == null ){
+        int count = 0;
+            for(int x = 0; x < taquin.length ; x++ ) {
+                for (int y = 0; y < taquin.length ; y++ ) {
+                    if( taquin[ x ][ y ] != null && getPositionDistance( taquin[ x ][ y ], x, y) != 0 ){
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }else{
+            int previousI = previous.getI(); // ahora en esta posicion esta el numero
+            int previousJ = previous.getJ();
+            
+            // en el i y j acutal estaba antes
+            boolean antesEstabaBien = getPositionDistance( previous.getTaquin()[ iCurrent ][ jCurrent ] , iCurrent, jCurrent ) == 0;
+            boolean ahoraEstaBien = getPositionDistance( taquin[ previousI ][ previousJ ] , previousI, previousJ ) == 0;
+            
+            int cambio = 0;
+            if( antesEstabaBien ){
+                cambio = 1;
+            }
+            if( ahoraEstaBien ){
+                cambio = -1;
+            }
+            return previous.getCorrectlyPlaced() + cambio;
+        }
     }
 
     

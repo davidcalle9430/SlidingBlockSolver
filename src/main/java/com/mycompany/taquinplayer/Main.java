@@ -20,6 +20,7 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
+            
             Integer[][] t = {
                 {1, 2, 9 ,10},
                 {13 ,15, 7 ,6},
