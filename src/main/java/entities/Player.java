@@ -160,12 +160,17 @@ public class Player implements Serializable {
                     move.setPath( real.getPath() );
                 }
             }
+            
             best = queue.poll();
             this.taquin = best.getTaquin();
             this.currentI = best.getI();
             this.currentJ = best.getJ();
             System.out.println( best.getExactTotalDistance() );
-
+            if( queue.size() > 1000 ){
+                    queue.clear();
+                    states.clear();
+                    System.gc();
+            }
         }
         Player.printMatrix( taquin );
         System.out.println("Tamanio"+ best.getPath().length());
