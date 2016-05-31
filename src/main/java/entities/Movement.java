@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -82,16 +84,12 @@ public final class Movement implements Comparable<Movement>, Serializable {
             // recalcular el movimiento de la pieza vacia
             double distance = previous.getExactTotalDistance() - getPositionDistance( taquin[ previousI ][ previousJ ],  iCurrent, jCurrent );
             distance += getPositionDistance( taquin[ previousI ][ previousJ ], previousI, previousJ );
-            // agregarle a la distancia el de la negra
-            // le resto como estaba el negro
-            //distance -= getPositionDistance( previous.getTaquin()[ previousI ][ previousJ ] , previousI, previousJ );
-            //distance += getPositionDistance( taquin[ iCurrent ][ jCurrent ],  iCurrent, jCurrent );
             
-            
+             /*
             int currentRow = 0;
             int error = 0,  mRow;
             Integer value = 0;
-            /*
+           
             for (int i = 0; i < this.taquin.length ; i++) {
                 error = 0;
                 for (int j = 0; j < taquin.length; j++) {
@@ -133,8 +131,7 @@ public final class Movement implements Comparable<Movement>, Serializable {
         MANHATAN_CACHE[ i ][ j ][ number ] = (double) Math.abs( i - iR ) + Math.abs( jR - j );
         return MANHATAN_CACHE[ i ][ j ][ number ];
     }
-    
-    
+   
     public Integer[][] getTaquin() {
         return taquin;
     }
@@ -210,19 +207,43 @@ public final class Movement implements Comparable<Movement>, Serializable {
     @Override
     public int compareTo(Movement o) {
         //System.out.println("Llama al compare");
+
         if( o == null) return 1;
-        Integer first = (int) (Math.pow( exactTotalDistance + correctlyPlaced , 1.5)  + moveCount);
-        Integer second = (int)(Math.pow( o.getExactTotalDistance() + o.getCorrectlyPlaced() , 1.5)  + o.getMoveCount() );
-        int manhattan = first.compareTo(second);
+        Integer first = (int) (Math.pow( exactTotalDistance + correctlyPlaced , 2)  + moveCount);
+        Integer second = (int)(Math.pow( o.getExactTotalDistance() + o.getCorrectlyPlaced() , 2)  + o.getMoveCount() );
+        int manhattan = first - second ;
         //Collections.shuffle( VALUES );
-        
-        return manhattan != 0 ? manhattan : new Integer( correctlyPlaced ).compareTo( o.getCorrectlyPlaced( )); //
+        if( manhattan != 0 ){ return manhattan ; }
+        else{
+            h = correctlyPlaced - o.getCorrectlyPlaced( );
+            if( h == 0 ){
+                //un buen tercer criterio podria ser cuantas ordendas tiene cada uno al inicio
+                int contInicio = 0, contFin=0;
+                boolean actualInicio = false, anteriorInicio =false;
+                for (int i = 0; i < taquin.length; i++) {
+                    for (int j = 0; j < taquin.length; j++) {
+                        if( taquin[i][j] != null && getPositionDistance(taquin[i][j], i, j) != 0){
+                            actualInicio = true;
+                        }
+                        if( o.getTaquin()[i][j] != null && getPositionDistance(o.getTaquin()[i][j], i, j) != 0){
+                            anteriorInicio = true;
+                        }
+                        if( !anteriorInicio ){ contFin++; }
+                        if( !actualInicio){ contInicio++; }
+                    }
+                }
+                return (contInicio - contFin);
+            }else{
+                return h;
+            }
+        } 
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Movement) {
             Movement other = (Movement) obj;
+            if( other.getI( ) != iCurrent ){ return false; }
             for (int i = 0; i < taquin.length; i++) {
                 for (int j = 0; j < taquin.length; j++) {
                     if (taquin[i][j] != null && !taquin[i][j].equals(other.getTaquin()[i][j])) {

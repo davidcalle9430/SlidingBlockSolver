@@ -100,6 +100,7 @@ public class Player implements Serializable {
             currentI = currentI + 1;
         }
     }
+   
     
     public String solve() throws Exception{
         PriorityQueue<Movement> queue = new PriorityQueue<>();
@@ -108,8 +109,9 @@ public class Player implements Serializable {
         ArrayList<Movement> estados = new ArrayList<>();
         int totalMovimientos = 0;
         String camino = null;
+        long iteraciones = 0;
         while( best == null || best.getExactTotalDistance() > 0 ){
-            
+            iteraciones++;
             if( best != null){
                 previous = (Movement) SerializationUtils.clone( best );
             }
@@ -148,6 +150,7 @@ public class Player implements Serializable {
         }
         Player.printMatrix(taquin);
         System.out.println("Tamanio"+ best.getPath().length());
+        System.out.println("iteraciones " + iteraciones);
         return best.getPath();
     }
     
