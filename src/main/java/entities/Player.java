@@ -5,7 +5,8 @@
  */
 package entities;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,9 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang.SerializationUtils;
 /**
  *
@@ -51,12 +49,12 @@ public class Player implements Serializable {
             taquinCopy[ i ] = taquin[ i ].clone();
         }
     }
-    
+
     
     public List<Integer> getValidMoves(){
         ArrayList<Integer> valid_moves = new ArrayList<>();
         if( this.currentI > 0)
-            valid_moves.add(2 );
+            valid_moves.add( 2 );
         if( this.currentI  < this.size - 1 )
             valid_moves.add( 3 );
         if (currentJ > 0)
@@ -107,6 +105,7 @@ public class Player implements Serializable {
         Movement previous = null;
         Movement best = null;
         ArrayList<Movement> estados = new ArrayList<>();
+        HashMap<String, Movement> states = new HashMap<>();
         int totalMovimientos = 0;
         String camino = null;
         long iteraciones = 0;
@@ -131,9 +130,19 @@ public class Player implements Serializable {
                 
                 int index = estados.indexOf( move );
                 if( index == -1 ){
+                    
+                    if( states.containsKey( move.hashCode() +"")){
+                        System.out.println("la RE CAGUE");
+                         System.in.read();
+                    }
                     queue.add(move);
                     estados.add(move);
+                    states.put( move.hashCode()+"" , move);
                 }else{
+                    if(! states.containsKey( move.hashCode() +"" )){
+                        System.out.println("la RE CAGUE METER");
+                         System.in.read();
+                    }
                     Movement real = estados.get( index );
                     move.setPath( real.getPath() );
                 }
@@ -144,7 +153,7 @@ public class Player implements Serializable {
             this.taquin = best.getTaquin();
             this.currentI = best.getI();
             this.currentJ = best.getJ();
-            System.out.println( "Selecciona a una distance de  " + best.getExactTotalDistance() +"--"+ best.getCorrectlyPlaced());
+            System.out.println( "Selecciona a una distancia de  " + best.getExactTotalDistance() );
             
             //System.in.read();
         }
@@ -194,6 +203,14 @@ public class Player implements Serializable {
     }
 
     public void setTaquin(Integer[][] taquin) {
+        for (int i = 0; i < taquin.length; i++) {
+            for (int j = 0; j < taquin.length; j++) {
+                if( taquin[ i ][ j ]!= null){
+                    taquinCopy[i][j] = (int)taquin[i][j];
+                }
+                
+            }
+        }
         this.taquin = taquin;
     }
 
@@ -225,6 +242,47 @@ public class Player implements Serializable {
        this.taquin = (Integer[][]) SerializationUtils.clone( this.taquin );
     }
     
+    public static Player readFile( String fileName ) throws Exception{
+         try (
+            BufferedReader bf = new BufferedReader(new FileReader( fileName ));
+         ) {
+            String url = bf.readLine();
+            Integer pid = Integer.parseInt( bf.readLine() );
+            Integer oid = Integer.parseInt( bf.readLine() );
+            String name = bf.readLine();
+            int size = Integer.parseInt( bf.readLine() );
+            String[] temp = bf.readLine().split(" ");
+            int i = Integer.parseInt( temp[0] );
+            int j = Integer.parseInt( temp[ 1 ] );
+            Integer[][] taquin = new Integer[ size ][ size ];
+             for (int k = 0; k < size; k++) {
+                 String[] lineNumbers = bf.readLine().split(" ");
+                 int cont = 0;
+                 for (String lineNumber : lineNumbers) {
+                     taquin[ k ][ cont ] = Integer.parseInt( lineNumber );
+                     cont++;
+                 } 
+             }
+             taquin[ i ][ j ] = null;
+             printMatrix(taquin);
+             Player p = new Player( url ,size , pid , oid , name , i , j );
+             p.setTaquin( taquin );
+             return p;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("Error al leer el archivo ");
+        }
+    }
     
+    public String[][] toStringMatrix(){
+        String[][] matrix = new String[size][size];
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                matrix[ i ][ j ] = this.taquin[ i ][ j ] + "";
+            }
+            
+        }
+        return matrix;
+    }
     
 }

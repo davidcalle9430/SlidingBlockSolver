@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +42,7 @@ public final class Movement implements Comparable<Movement>, Serializable {
     private int exactTotalDistance;
     public int aTenerEnCuenta = 1;
     public int h;
+    private String hashValue = "";
     
 
     public Movement(Integer[][] Taquin, String path, Movement previous, int i, int j, int movement, int moveCount) throws Exception{
@@ -57,6 +59,11 @@ public final class Movement implements Comparable<Movement>, Serializable {
         this.exactTotalDistance = countExactTotalDistance();
         this.correctlyPlaced = countCorrectlyPlaced();
         h = correctlyPlaced > exactTotalDistance ? correctlyPlaced : exactTotalDistance;
+        for (int k = 0; k < Taquin.length; k++) {
+            for (int l = 0; l < Taquin.length; l++) {
+                hashValue+= Taquin[ k ][ l ];
+            }  
+        }
     }
 
     
@@ -208,9 +215,11 @@ public final class Movement implements Comparable<Movement>, Serializable {
     public int compareTo(Movement o) {
         //System.out.println("Llama al compare");
 
+        int correction = taquin.length > 3 ? 2 : 1;
+        
         if( o == null) return 1;
-        Integer first = (int) (Math.pow( exactTotalDistance + correctlyPlaced , 2)  + moveCount);
-        Integer second = (int)(Math.pow( o.getExactTotalDistance() + o.getCorrectlyPlaced() , 2)  + o.getMoveCount() );
+        Integer first = (int) (Math.pow( exactTotalDistance + correctlyPlaced , correction)  + moveCount);
+        Integer second = (int)(Math.pow( o.getExactTotalDistance() + o.getCorrectlyPlaced() , correction)  + o.getMoveCount() );
         int manhattan = first - second ;
         //Collections.shuffle( VALUES );
         if( manhattan != 0 ){ return manhattan ; }
@@ -258,9 +267,11 @@ public final class Movement implements Comparable<Movement>, Serializable {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 67 * hash + Arrays.deepHashCode(this.taquin);
+        hash = 89 * hash + Objects.hashCode(this.hashValue);
         return hash;
     }
+
+    
 
     private int countCorrectlyPlaced() throws IOException {
         if( this.previous == null ){
