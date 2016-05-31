@@ -40,7 +40,6 @@ public final class Movement implements Comparable<Movement>, Serializable {
     private int moveCount;
     private int correctlyPlaced;
     private int exactTotalDistance;
-    public int aTenerEnCuenta = 1;
     public int h;
     private String hashValue = "";
     
@@ -71,22 +70,20 @@ public final class Movement implements Comparable<Movement>, Serializable {
         if( this.previous == null ){
             int count = 0;
             double totalDistance = 0;
-            double distance = 0.0;
             for (int i = 0; i < taquin.length; i++) {
                 for (int j = 0; j < this.taquin.length ; j++) {
                     count++;
                     Integer value = taquin[ i ][ j ];
                     if( value != null ){
-                           distance = this.getPositionDistance( taquin[ i ][ j ], i , j );
-                           totalDistance+= distance;
+                           totalDistance += this.getPositionDistance( taquin[ i ][ j ], i , j );
                     }
                 }
  
             }
             return (int)totalDistance;
         }else{
-            int previousI = previous.getI();
-            int previousJ = previous.getJ();
+            Integer previousI = previous.getI();
+            Integer previousJ = previous.getJ();
             
             // recalcular el movimiento de la pieza vacia
             double distance = previous.getExactTotalDistance() - getPositionDistance( taquin[ previousI ][ previousJ ],  iCurrent, jCurrent );
@@ -218,33 +215,14 @@ public final class Movement implements Comparable<Movement>, Serializable {
         int correction = taquin.length > 3 ? 2 : 1;
         
         if( o == null) return 1;
-        Integer first = (int) (Math.pow( exactTotalDistance + correctlyPlaced , correction)  + moveCount);
-        Integer second = (int)(Math.pow( o.getExactTotalDistance() + o.getCorrectlyPlaced() , correction)  + o.getMoveCount() );
+        Integer first = (int) (Math.pow( exactTotalDistance + correctlyPlaced , correction)  + moveCount );
+        Integer second = (int)(Math.pow( o.getExactTotalDistance() + o.getCorrectlyPlaced() , correction )  + o.getMoveCount() );
         int manhattan = first - second ;
         //Collections.shuffle( VALUES );
         if( manhattan != 0 ){ return manhattan ; }
         else{
             h = correctlyPlaced - o.getCorrectlyPlaced( );
-            if( h == 0 ){
-                //un buen tercer criterio podria ser cuantas ordendas tiene cada uno al inicio
-                int contInicio = 0, contFin=0;
-                boolean actualInicio = false, anteriorInicio =false;
-                for (int i = 0; i < taquin.length; i++) {
-                    for (int j = 0; j < taquin.length; j++) {
-                        if( taquin[i][j] != null && getPositionDistance(taquin[i][j], i, j) != 0){
-                            actualInicio = true;
-                        }
-                        if( o.getTaquin()[i][j] != null && getPositionDistance(o.getTaquin()[i][j], i, j) != 0){
-                            anteriorInicio = true;
-                        }
-                        if( !anteriorInicio ){ contFin++; }
-                        if( !actualInicio){ contInicio++; }
-                    }
-                }
-                return (contInicio - contFin);
-            }else{
-                return h;
-            }
+            return h;
         } 
     }
 

@@ -37,6 +37,7 @@ public class ServerIntegration {
     private final static String MOVE_LEFT_PATH = BASE_PATH + "player/" + REPLACE_PID +"/board/move/left";
     private final static String MOVE_UP_PATH = BASE_PATH + "player/" + REPLACE_PID +"/board/move/up";
     private final static String MOVE_DOWN_PATH = BASE_PATH + "player/" + REPLACE_PID +"/board/move/down";
+    
     /**
      * las siguientes constantes representan los movimientos
      */
@@ -91,9 +92,12 @@ public class ServerIntegration {
     }
     
     public Board getTaquin(  ) throws IOException, Exception{
-        System.out.println("¿El reto esta listo?");
+        System.out.println( "¿Ya se encuentra puesto el challenge?" );
         System.in.read();
-        String url = GET_BOARD_PATH.replace( REPLACE_SERVER_LOCATION , player.getUrl() ).replace( REPLACE_PID , player.getpId()+"" );
+        String url = GET_BOARD_PATH
+                .replace( REPLACE_SERVER_LOCATION , player.getUrl() )
+                .replace( REPLACE_PID , player.getpId()+"" );
+        
         WebResource webResource = client.resource( url );
         ClientResponse response = webResource.accept("application/json")
                                    .get(ClientResponse.class);
@@ -103,7 +107,7 @@ public class ServerIntegration {
         player.setCurrentI( taquin.getBlank().getRow() );
         player.setCurrentJ( taquin.getBlank().getColumn() );
         player.setTaquin( taquin.toIntegerMatrix() );
-        Player.printMatrix( player.getTaquin() );
+        player.setSize( taquin.getCurrentState().length );
         return taquin;    
     }
     
@@ -135,12 +139,25 @@ public class ServerIntegration {
         WebResource webResource = client.resource( url );
         webResource.type("application/json").post(  );
     }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
     
     public void Solve() throws Exception{
-        System.out.println("mis posiciones  " + player.getCurrentI() + player.getCurrentJ());
         String moves = player.solve();
-        System.out.println( moves );
-        System.in.read();
         for (int i = 0; i < moves.length(); i++) {
             String move = moves.charAt( i )+"";
             switch(move){

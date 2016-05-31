@@ -83,7 +83,7 @@ public class Board
                     try{
                         matrix[ i ][ j ] = Integer.parseInt( this.currentState[ i ][ j ]);
                     }catch( Exception e ){
-                        matrix[ i ][ j ] = 0;
+                        matrix[ i ][ j ] = null;
                     }                  
                 }
                 

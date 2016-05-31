@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,10 +29,20 @@ public class Player implements Serializable {
     private int pId;
     private int oId;
     private Integer[][] taquin;     
-    private Integer[][] taquinCopy;
     private String name;
     private int currentI;
     private int currentJ;
+
+    public Player(String url, int size, int pId, int oId, Integer[][] taquin, String name, int currentI, int currentJ) {
+        this.url = url;
+        this.size = size;
+        this.pId = pId;
+        this.oId = oId;
+        this.taquin = taquin;
+        this.name = name;
+        this.currentI = currentI;
+        this.currentJ = currentJ;
+    }
 
     
     public Player(String url, int size, int pId, int oId, String name, int currentI, int currentJ) {
@@ -40,14 +51,10 @@ public class Player implements Serializable {
         this.pId = pId;
         this.oId = oId;
         taquin = new Integer[ size ][ size ];
-        taquinCopy = new Integer[ size ][ size ];
         taquin[ currentI ][ currentJ ] = null;
         this.name = name;
         this.currentI = currentI;
         this.currentJ = currentJ;
-        for (int i = 0; i < taquin.length; i++) {
-            taquinCopy[ i ] = taquin[ i ].clone();
-        }
     }
 
     
@@ -104,7 +111,6 @@ public class Player implements Serializable {
         PriorityQueue<Movement> queue = new PriorityQueue<>();
         Movement previous = null;
         Movement best = null;
-        ArrayList<Movement> estados = new ArrayList<>();
         HashMap<String, Movement> states = new HashMap<>();
         int totalMovimientos = 0;
         String camino = null;
@@ -126,38 +132,34 @@ public class Player implements Serializable {
                     camino = movement+"";
                     totalMovimientos = 1;
                 }
-                Movement move = new Movement( player_copy.taquin , camino , previous , player_copy.getCurrentI(), player_copy.getCurrentJ() , movement , totalMovimientos );
-                
-                int index = estados.indexOf( move );
-                if( index == -1 ){
+                Movement move = new Movement( player_copy.getTaquin() , camino , previous , player_copy.getCurrentI(), player_copy.getCurrentJ() , movement , totalMovimientos );
+                if( !states.containsKey( move.hashCode() +"") ){
                     
                     if( states.containsKey( move.hashCode() +"")){
                         System.out.println("la RE CAGUE");
                          System.in.read();
                     }
-                    queue.add(move);
-                    estados.add(move);
+                    
+                    queue.add( move );
+                    //estados.add(move);
                     states.put( move.hashCode()+"" , move);
                 }else{
                     if(! states.containsKey( move.hashCode() +"" )){
                         System.out.println("la RE CAGUE METER");
                          System.in.read();
                     }
-                    Movement real = estados.get( index );
+                    Movement real = states.get( move.hashCode()+"" );
                     move.setPath( real.getPath() );
                 }
             }
-            
-            
             best = queue.poll();
             this.taquin = best.getTaquin();
             this.currentI = best.getI();
             this.currentJ = best.getJ();
-            System.out.println( "Selecciona a una distancia de  " + best.getExactTotalDistance() );
-            
-            //System.in.read();
+            System.out.println( best.getExactTotalDistance() );
+
         }
-        Player.printMatrix(taquin);
+        Player.printMatrix( taquin );
         System.out.println("Tamanio"+ best.getPath().length());
         System.out.println("iteraciones " + iteraciones);
         return best.getPath();
@@ -203,14 +205,6 @@ public class Player implements Serializable {
     }
 
     public void setTaquin(Integer[][] taquin) {
-        for (int i = 0; i < taquin.length; i++) {
-            for (int j = 0; j < taquin.length; j++) {
-                if( taquin[ i ][ j ]!= null){
-                    taquinCopy[i][j] = (int)taquin[i][j];
-                }
-                
-            }
-        }
         this.taquin = taquin;
     }
 
@@ -252,7 +246,7 @@ public class Player implements Serializable {
             String name = bf.readLine();
             int size = Integer.parseInt( bf.readLine() );
             String[] temp = bf.readLine().split(" ");
-            int i = Integer.parseInt( temp[0] );
+            int i = Integer.parseInt( temp[ 0 ] );
             int j = Integer.parseInt( temp[ 1 ] );
             Integer[][] taquin = new Integer[ size ][ size ];
              for (int k = 0; k < size; k++) {
@@ -280,9 +274,14 @@ public class Player implements Serializable {
             for (int j = 0; j < matrix.length; j++) {
                 matrix[ i ][ j ] = this.taquin[ i ][ j ] + "";
             }
-            
         }
         return matrix;
+    }
+
+    @Override
+    public String toString() {
+        printMatrix( this.taquin );
+        return "Player{" + "url=" + url + ", size=" + size + ", pId=" + pId + ", oId=" + oId + ", name=" + name + ", currentI=" + currentI + ", currentJ=" + currentJ + '}';
     }
     
 }
